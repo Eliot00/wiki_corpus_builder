@@ -1,0 +1,8 @@
+bz2file==0.98
+gensim==4.3.1
+jieba==0.42.1
+numpy==1.24.2
+pypinyin==0.48.0
+scipy==1.10.1
+smart-open==6.3.0
+tqdm==4.65.0

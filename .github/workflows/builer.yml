@@ -1,0 +1,35 @@
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  release-corpus:
+    name: release-corpus
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v3
+        with:
+          python-version: 3.10
+          architecture: "x64"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      - name: Download wikis
+        run: |
+          curl -O https://dumps.wikimedia.org/zhwiki/latest/zhwiki-latest-pages-articles.xml.bz2
+      - name: Extract wiki file
+        run: |
+          python extract.py
+      - name: Format corpus
+        run: |
+          python format.py
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: corpus.tsv
+          tag_name: ${{ github.ref }}
