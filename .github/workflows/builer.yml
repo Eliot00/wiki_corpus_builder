@@ -3,6 +3,9 @@ on:
     tags:
       - "*"
 
+permissions:
+  contents: write
+
 jobs:
   release-corpus:
     name: release-corpus
