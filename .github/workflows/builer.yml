@@ -31,6 +31,9 @@ jobs:
       - name: Format corpus
         run: |
           python format.py
+      - name: Archive
+        run: |
+          zip -9 -r corpus.zip corpus.tsv
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
