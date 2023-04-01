@@ -3,7 +3,41 @@ import re
 import pypinyin
 from tqdm import tqdm
 import jieba
+from pycnnum import num2cn
 
+digit_patter = re.compile(r'\d+')
+
+def convert_digit_to_chinese(sentence: str) -> str:
+    # 年份需要特殊转换
+    sentence = year_special_convert(sentence)
+
+    matches = digit_patter.findall(sentence)
+    for match in matches:
+        if float(match) < 10e16:
+            sentence = sentence.replace(match, num2cn(match, traditional=True, alt_two=True, alt_zero=True))
+    return sentence
+
+year_digit_map = {
+    '0': '〇',
+    '1': '一',
+    '2': '二',
+    '3': '三',
+    '4': '四',
+    '5': '五',
+    '6': '六',
+    '7': '七',
+    '8': '八',
+    '9': '九',
+}
+year_patter = re.compile(r'\d+年')
+
+def year_special_convert(sentence: str) -> str:
+    matches = year_patter.findall(sentence)
+    for match in matches:
+        year = match[:-1]  # 去掉年字
+        cn_year = ''.join(year_digit_map[digit] for digit in year)
+        sentence = sentence.replace(match, cn_year + '年')
+    return sentence
 
 def get_words_and_pinyins(sentence: str) -> tuple[str, str]:
     words = jieba.cut(sentence, cut_all=False)
@@ -42,4 +76,8 @@ if __name__ == '__main__':
                     sentence = sentence.strip()
                     # 过滤掉不包含汉字或长度不够的句子
                     if len(sentence) > 1 and re.search('[\u4e00-\u9fff]', sentence):
+                        try:
+                            sentence = convert_digit_to_chinese(sentence)
+                        except (IndexError, ValueError):
+                            print(f"转换数字失败：{sentence}")
                         writer.writerow(get_words_and_pinyins(sentence))
