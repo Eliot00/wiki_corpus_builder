@@ -28,6 +28,16 @@ year_digit_map = {
     '7': '七',
     '8': '八',
     '9': '九',
+    '０': '〇',
+    '１': '一',
+    '２': '二',
+    '３': '三',
+    '４': '四',
+    '５': '五',
+    '６': '六',
+    '７': '七',
+    '８': '八',
+    '９': '九',
 }
 year_patter = re.compile(r'\d+年')
 
@@ -78,6 +88,6 @@ if __name__ == '__main__':
                     if len(sentence) > 1 and re.search('[\u4e00-\u9fff]', sentence):
                         try:
                             sentence = convert_digit_to_chinese(sentence)
-                        except (IndexError, ValueError):
+                        except (IndexError, KeyError, ValueError):
                             print(f"转换数字失败：{sentence}")
                         writer.writerow(get_words_and_pinyins(sentence))
