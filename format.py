@@ -13,6 +13,9 @@ def convert_digit_to_chinese(sentence: str) -> str:
 
     matches = digit_patter.findall(sentence)
     for match in matches:
+        # pycnnum遇到1会出现IndexError，临时处理一下
+        if match == '1':
+            sentence = sentence.replace(match, '一')
         if float(match) < 10e16:
             sentence = sentence.replace(match, num2cn(match, traditional=True, alt_two=True, alt_zero=True))
     return sentence
