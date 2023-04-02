@@ -5,20 +5,31 @@ from tqdm import tqdm
 import jieba
 from pycnnum import num2cn
 
-digit_patter = re.compile(r'\d+')
+digit_pattern = re.compile(r'(?<=[\u4e00-\u9fff])\d+\.?\d*|\d*\.?\d+(?=[\u4e00-\u9fff%])')
+percent_pattern = re.compile(r'(?<=[\u4e00-\u9fff])\d+\.?\d*%')
 
 def convert_digit_to_chinese(sentence: str) -> str:
     # 年份需要特殊转换
     sentence = year_special_convert(sentence)
 
-    matches = digit_patter.findall(sentence)
+    # 处理百分数
+    percent_matches = percent_pattern.findall(sentence)
+    for match in percent_matches:
+        num = float(match[:-1])
+        cn_num = num2cn(str(num), traditional=True, alt_two=True, alt_zero=True)
+        sentence = sentence.replace(match, '百分之' + cn_num)
+
+    matches = digit_pattern.findall(sentence)
     for match in matches:
+        if '.' in match:  # 匹配到小数
+            cn_num = num2cn(match, traditional=True, alt_two=True, alt_zero=True)
+            sentence = sentence.replace(match, cn_num)
         # pycnnum遇到1会出现IndexError，临时处理一下
-        if int(match) == 1:
+        elif match == '1':
             sentence = sentence.replace(match, '一')
-            continue
-        if float(match) < 10e16:
-            sentence = sentence.replace(match, num2cn(match, traditional=True, alt_two=True, alt_zero=True))
+        else:  # 匹配到整数
+            cn_num = num2cn(match, traditional=True, alt_two=True, alt_zero=True)
+            sentence = sentence.replace(match, cn_num)
     return sentence
 
 year_digit_map = {
@@ -90,8 +101,5 @@ if __name__ == '__main__':
                     sentence = sentence.strip()
                     # 过滤掉不包含汉字或长度不够的句子
                     if len(sentence) > 1 and re.search('[\u4e00-\u9fff]', sentence):
-                        try:
-                            sentence = convert_digit_to_chinese(sentence)
-                        except (IndexError, KeyError, ValueError):
-                            print(f"转换数字失败：{sentence}")
+                        sentence = convert_digit_to_chinese(sentence)
                         writer.writerow(get_words_and_pinyins(sentence))
