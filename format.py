@@ -147,6 +147,7 @@ def num2chinese(num, big=False, simp=True, o=False, twoalt=False):
         result.append(c_symbol[2])
         result.append(''.join(c_basic[int(ch)] for ch in remainder))
     return ''.join(result)
+
 def get_words_and_pinyins(sentence: str) -> tuple[str, str]:
     words = jieba.cut(sentence, cut_all=False)
 
@@ -158,12 +159,11 @@ def get_words_and_pinyins(sentence: str) -> tuple[str, str]:
                 filtered_words.append(word)
                 break
 
-    # 如果一行只有一个词，拆出第一个字，方便HMM计算初始概率
+    # 如果一行只有一个词，单个字拆开，方便HMM计算
     if len(filtered_words) == 1:
         word = filtered_words[0]
-        pinyin = pypinyin.lazy_pinyin(word)
-        pinyin_list = [pinyin[0], ' '.join(pinyin[1:])]
-        words = [word[0], word[1:]]
+        pinyin_list = pypinyin.lazy_pinyin(word)
+        words = [c for c in word]
         return (','.join(words), ','.join(pinyin_list))
 
     # 使用pypinyin将词语转换为拼音
