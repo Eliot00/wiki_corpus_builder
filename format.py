@@ -2,7 +2,6 @@ import csv
 import re
 import pypinyin
 from tqdm import tqdm
-import jieba
 import itertools
 
 digit_pattern = re.compile(r'(?<=[\u4e00-\u9fff])\d+\.?\d*|\d*\.?\d+(?=[\u4e00-\u9fff%])')
@@ -149,37 +148,20 @@ def num2chinese(num, big=False, simp=True, o=False, twoalt=False):
     return ''.join(result)
 
 def get_words_and_pinyins(sentence: str) -> tuple[str, str]:
-    words = jieba.cut(sentence, cut_all=False)
+    # 过滤掉非汉字
+    filtered_words = filter(lambda c: '\u4e00' <= c <= '\u9fff', sentence)
 
-    # 过滤掉不包含汉字的词语
-    filtered_words = []
-    for word in words:
-        for char in word:
-            if '\u4e00' <= char <= '\u9fff': # 如果词语包含汉字
-                filtered_words.append(word)
-                break
-
-    # 如果一行只有一个词，单个字拆开，方便HMM计算
-    if len(filtered_words) == 1:
-        word = filtered_words[0]
-        pinyin_list = pypinyin.lazy_pinyin(word)
-        words = [c for c in word]
-        return (','.join(words), ','.join(pinyin_list))
-
-    # 使用pypinyin将词语转换为拼音
-    pinyin_list = []
-    for word in filtered_words:
-        pinyin_list.append(' '.join(pypinyin.lazy_pinyin(word)))
+    # 使用pypinyin将句子转换为拼音
+    pinyin_list = pypinyin.lazy_pinyin(''.join(filtered_words))
 
     return (','.join(filtered_words), ','.join(pinyin_list))
 
 if __name__ == '__main__':
-    jieba.set_dictionary('dict.txt.big')
     with open('wiki.txt', 'r', encoding='utf-8') as wiki:
         with open('corpus.tsv', 'w', encoding='utf-8', newline='') as formatted:
             writer = csv.writer(formatted, delimiter='\t')
             for line in tqdm(wiki):
-                sentences: list[str] = re.findall('[^。！？\n]+[。！？\n]', line)
+                sentences: list[str] = re.findall('[^，。！？\n]+[，。！？\n]', line)
                 for sentence in sentences:
                     sentence = sentence.strip()
                     # 过滤掉不包含汉字或长度不够的句子
