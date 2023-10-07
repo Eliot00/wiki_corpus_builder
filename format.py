@@ -149,12 +149,15 @@ def num2chinese(num, big=False, simp=True, o=False, twoalt=False):
 
 def get_words_and_pinyins(sentence: str) -> tuple[str, str]:
     # 过滤掉非汉字
-    filtered_words = filter(lambda c: '\u4e00' <= c <= '\u9fff', sentence)
+    filtered_words = []
+    for word in sentence:
+        if '\u4e00' <= word <= '\u9fff':
+            filtered_words.append(word)
 
     # 使用pypinyin将句子转换为拼音
     pinyin_list = pypinyin.lazy_pinyin(''.join(filtered_words))
 
-    return (','.join(filtered_words), ','.join(pinyin_list))
+    return (' '.join(filtered_words), ' '.join(pinyin_list))
 
 if __name__ == '__main__':
     with open('wiki.txt', 'r', encoding='utf-8') as wiki:
