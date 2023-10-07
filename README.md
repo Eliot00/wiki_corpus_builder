@@ -14,7 +14,7 @@ GitHub action会自动构建语料文件，可以直接在仓库的release页面
 语料文件使用`tsv`格式，其中第一列是句子，第二列是对应的拼音：
 
 ```tsv
-歐幾里得,西元前,三,世紀,的,古希臘,數學家,現在,被,認為,是,幾何,之,父,此畫,為,拉斐爾,的,作品,雅典,學院    ou ji li de,xi yuan qian,san,shi ji,de,gu xi la,shu xue jia,xian zai,bei,ren wei,shi,ji he,zhi,fu,ci hua,wei,la fei er,de,zuo pin,ya dian,xue yuan
+西 元 前 三 世 紀 的 古 希 臘 數 學 家	xi yuan qian san shi ji de gu xi la shu xue jia
 ```
 
-句子中每个词用半角逗号分割，每个词对应的拼音也用半角逗号分割，词中的每个字对应的拼音用空格隔开。词是通过jieba分词得到的，如果一个句子中只有一个词，则将该词的第一个字和后续字分开，便于后续计算初始概率和转移概率。
+句子中每个字及对应的拼音用空格隔开。
